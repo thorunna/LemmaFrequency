@@ -1,7 +1,8 @@
 """
 Þórunn Arnardóttir (thar@hi.is)
 
-Script for extracting frequency information on lemmas in the Icelandic Gigaword corpus. 
+Script for extracting frequency information on lemmas in the Icelandic Gigaword corpus. The script expects a directory which
+only includes directories with relevant XML files.
 
 compile_full_frequency() returns frequency information for each sentence in the corpus. The information shown is the following, 
 separated by a tab:
