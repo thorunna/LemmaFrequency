@@ -153,7 +153,7 @@ def get_genre_frequency(genre, output_dir):
     out.close()
 
 
-# function to compile genres
+# function to compile genres and get frequency information on each of them
 def compile_genre_frequency(output_dir):
     genres = set()
 
