@@ -10,6 +10,10 @@ separated by a tab:
     The text ID
     The sentence ID (includes the text ID)
     The sentence's number in the text
+    The text's genre
+    Date of publication
+    The author's birth year, if available
+    The author's sex, if available
     The sentence's text
     A tuple containing the lemma, its word category (along with its grammatical gender if the lemma in question is a noun) and the lemma's frequency.
     A frequency vector, showing each lemma's frequency in the order in which the lemma appears in the corpus.
