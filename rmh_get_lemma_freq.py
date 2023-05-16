@@ -73,6 +73,7 @@ def text_words(teifile, token_list, text_list):
                 yield "{}{}{}".format(lemma, ", ", tag)
 
 
+# function to compile frequency information from the corpus
 def compile_full_frequency(output_file):
     c = Counter()
     token_list = dict()
@@ -82,10 +83,18 @@ def compile_full_frequency(output_file):
 
     for file in sorted(file_list):
         print("Compiling frequency information from {}...".format(file))
-        text_count = 1
+        genre = file.split("/")[6].split("-")[1]
         with open(file, "r"):
             text_id = file.split("/")[-1]
             c.update((text_words(file, token_list, text_list)))
+            root = xml.etree.ElementTree.parse(file).getroot()
+            year = (
+                root.find(".//tei:sourceDesc", ns)
+                .find(".//tei:date", ns)
+                .attrib["when"][:4]
+            )
+            author_year = ""
+            author_sex = ""
 
             for sent_id in token_list:
                 tup = []
@@ -99,14 +108,16 @@ def compile_full_frequency(output_file):
                     text_id,
                     text_id.split(".")[0] + "." + sent_id,
                     sent_id,
+                    genre,
+                    year,
+                    author_year,
+                    author_sex,
                     " ".join(text_list[sent_id]),
                     " ".join(tup),
                     " ".join(vector),
                 ]
                 out.write("\t".join(output))
                 out.write("\n")
-
-            text_count += 1
 
     out.close()
 
@@ -130,6 +141,14 @@ def get_genre_frequency(genre, output_dir):
         with open(file, "r"):
             text_id = file.split("/")[-1]
             c.update((text_words(file, token_list, text_list)))
+            root = xml.etree.ElementTree.parse(file).getroot()
+            year = (
+                root.find(".//tei:sourceDesc", ns)
+                .find(".//tei:date", ns)
+                .attrib["when"][:4]
+            )
+            author_year = ""
+            author_sex = ""
 
             for sent_id in token_list:
                 tup = []
@@ -143,6 +162,10 @@ def get_genre_frequency(genre, output_dir):
                     text_id,
                     text_id.split(".")[0] + "." + sent_id,
                     sent_id,
+                    genre,
+                    year,
+                    author_year,
+                    author_sex,
                     " ".join(text_list[sent_id]),
                     " ".join(tup),
                     " ".join(vector),
