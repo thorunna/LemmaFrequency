@@ -39,6 +39,7 @@ file_list = [
     if filename.endswith(".xml")
 ]
 output_file = "/Users/torunnarnardottir/Vinna/rmh/rmh_full_freq.tsv"
+genre_output_dir = "/Users/torunnarnardottir/Vinna/rmh/rmh_genre_freq/"
 
 # XML namespace
 ns = {"tei": "http://www.tei-c.org/ns/1.0"}
