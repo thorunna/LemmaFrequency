@@ -73,6 +73,11 @@ def compile_full_frequency(output_file):
                 c.update((text_words(full_fname, token_list, text_list)))
                 sys.stdout.write("\rTexts processed: {}".format(text_count))
 
+                genre = folder
+                year = item["Date"]
+                author_year = ""
+                author_sex = ""
+
             for sent_id in token_list:
                 tup = []
                 vector = []
@@ -85,9 +90,16 @@ def compile_full_frequency(output_file):
                     fname,
                     fname.split(".")[0] + "." + sent_id,
                     sent_id,
+                    genre,
+                    year,
+                    author_year,
+                    author_sex,
                     " ".join(text_list[sent_id]),
                     " ".join(tup),
                     " ".join(vector),
                 ]
                 output_file.write("\t".join(output))
                 output_file.write("\n")
+
+
+compile_full_frequency(output_file)
