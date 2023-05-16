@@ -2,7 +2,7 @@
 Þórunn Arnardóttir (thar@hi.is)
 
 Script for extracting frequency information on lemmas in the Icelandic Gigaword corpus. The script expects a directory which
-only includes directories with relevant XML files.
+only includes directories with relevant XML files. The output is twofold:
 
 compile_full_frequency() returns frequency information for each sentence in the corpus. The information shown is the following, 
 separated by a tab:
@@ -13,6 +13,9 @@ separated by a tab:
     The sentence's text
     A tuple containing the lemma, its word category (along with its grammatical gender if the lemma in question is a noun) and the lemma's frequency.
     A frequency vector, showing each lemma's frequency in the order in which the lemma appears in the corpus.
+
+compile_genre_frequency() returns frequency information for each genre in the corpus. The information shown is the same as shown in the output of 
+compile_full_grequency(), but the lemmas' frequency is limited to the genre in question. The function returns output files for each genre in the corpus.
 
 """
 
@@ -107,4 +110,55 @@ def compile_full_frequency(output_file):
     out.close()
 
 
-compile_full_frequency(output_file)
+# function to compile frequency information from each genre
+def get_genre_frequency(genre, output_dir):
+    c = Counter()
+    token_list = dict()
+    text_list = dict()
+
+    output_file = output_dir + "rmh_" + genre + "_freq.tsv"
+    out = open(output_file, "w")
+
+    genre_file_list = [file for file in file_list if genre in file]
+
+    print("Compiling frequency information from genre {}".format(genre))
+
+    for file in sorted(genre_file_list):
+        print("Compiling frequency information from {}...".format(file))
+        genre = file.split("/")[6].split("-")[1]
+        with open(file, "r"):
+            text_id = file.split("/")[-1]
+            c.update((text_words(file, token_list, text_list)))
+
+            for sent_id in token_list:
+                tup = []
+                vector = []
+                for word in token_list[sent_id]:
+                    lemma_tuple = str(word[1]) + ", " + str(word[0])
+                    output_tuple = (lemma_tuple, c[lemma_tuple])
+                    tup.append(str(output_tuple))
+                    vector.append(str(c[lemma_tuple]))
+                output = [
+                    text_id,
+                    text_id.split(".")[0] + "." + sent_id,
+                    sent_id,
+                    " ".join(text_list[sent_id]),
+                    " ".join(tup),
+                    " ".join(vector),
+                ]
+                out.write("\t".join(output))
+                out.write("\n")
+
+    out.close()
+
+
+# function to compile genres
+def compile_genre_frequency(output_dir):
+    genres = set()
+
+    for file in sorted(file_list):
+        genre = file.split("/")[6].split("-")[1]
+        genres.add(genre)
+
+    for genre in genres:
+        get_genre_frequency(genre, output_dir)
