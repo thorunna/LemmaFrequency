@@ -15,6 +15,10 @@ separated by a tab:
     The text ID
     The sentence ID (includes the text ID)
     The sentence's number in the text
+    The text's genre
+    Date of publication
+    The author's birth year, if available
+    The author's sex, if available
     The sentence's text
     A tuple containing the lemma, its word category (along with its grammatical gender if the lemma in question is a noun) and the lemma's frequency.
     A frequency vector, showing each lemma's frequency in the order in which the lemma appears in the corpus.
@@ -24,11 +28,18 @@ separated by a tab:
 import json
 import requests
 from collections import Counter
+from collections import OrderedDict
 import os
 import string
 
 basedir = "/Users/torunnarnardottir/Vinna/icepahc-v0.9/txt/"
 file_list = sorted(os.listdir(basedir))
+# file_list = [
+#    "1150.firstgrammar.sci-lin.txt",
+#    "1859.hugvekjur.rel-ser.txt",
+#    "1525.erasmus.nar-sag.txt",
+#    "1888.grimur.nar-fic.txt",
+# ]
 input_file_V2 = "/Users/torunnarnardottir/Vinna/icepahc-v0.9/infoTheoryTestV2.ice.treeIDandIDfixed.cod.ooo"
 output_file_total = (
     "/Users/torunnarnardottir/Vinna/icepahc-v0.9/icepahc_full_frequency.tsv"
@@ -173,8 +184,10 @@ def compile_full_freq(output_file_total):
     testID\tsentenceID\tSentence number in text\tSentence text\tTuple with each word's lemma, tag and frequency\tFrequency vector
     """
     c = Counter()
-    token_list = dict()
+    token_list = OrderedDict()
     text_list = dict()
+
+    output_file = open(output_file_total, "w")
 
     for file in file_list:
         print("Compiling frequency information from {}...".format(file))
@@ -184,6 +197,7 @@ def compile_full_freq(output_file_total):
             + ".".join(file.split(".")[:-1])
             + ".psd"
         )
+
         ids = []
         with open(psd_path, "r", encoding="utf-8") as psd_file:
             for line in psd_file:
@@ -211,20 +225,46 @@ def compile_full_freq(output_file_total):
                 ids.append(str(int(psd_id) + 6))
                 ids.append(str(int(psd_id) + 7))
         full_path = basedir + file
-        file = file.split(".")[1]
+        file_simple = file.split(".")[1]
         with open(full_path, "r", encoding="utf-8") as input_file:
             sent_count = 0
             for line in input_file:
                 t = tag_and_lemmatize(line)
-                sent_id = file.lower() + "." + str(ids[sent_count])
-                text_list[sent_id] = line
+                sent_id = file_simple.lower() + "." + str(ids[sent_count])
+                text_list[sent_id] = line.rstrip("\n")
                 c.update(clean_tagged_output(t, token_list, sent_id, ", "))
                 sent_count += 1
 
-    with open(output_file_total, "w") as output_file:
-        for file in file_list:
-            text_id = file
-            for sent_id in token_list:
+        print("Writing to output file...")
+
+        text_id = file
+        info_file = (
+            "/".join(basedir.split("/")[:-2])
+            + "/info/"
+            + ".".join(file.split(".")[:-1])
+            + ".info"
+        )
+        with open(info_file, "r") as info_file:
+            for line in info_file:
+                if line.startswith("Birthdate:"):
+                    author_year = line.split("\t")[-1].rstrip()
+                elif line.startswith("Date"):
+                    # tab is usually used to indicate the date, but several spaces are used in one case
+                    try:
+                        year = line.split("\t")[-1].rstrip()
+                    except IndexError:
+                        year = ""
+                elif line.startswith("Genre"):
+                    genre = line.split("\t")[-1].rstrip()
+            author_sex = ""
+
+        full_path = basedir + file
+        file = file.split(".")[1]
+        with open(full_path, "r") as input_file:
+            sent_count = 0
+            for line in input_file:
+                sent_id = file.lower() + "." + str(ids[sent_count])
+
                 tup = []
                 vector = []
                 for word in token_list[sent_id]:
@@ -236,9 +276,20 @@ def compile_full_freq(output_file_total):
                     text_id,
                     sent_id,
                     sent_id.split(".")[1],
+                    genre,
+                    year,
+                    author_year,
+                    author_sex,
                     text_list[sent_id],
                     " ".join(tup),
                     " ".join(vector),
                 ]
                 output_file.write("\t".join(output))
                 output_file.write("\n")
+
+                sent_count += 1
+
+    output_file.close()
+
+
+compile_full_freq(output_file_total)
