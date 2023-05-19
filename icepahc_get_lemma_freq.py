@@ -20,8 +20,9 @@ separated by a tab:
     The author's birth year, if available
     The author's sex, if available
     The sentence's text
-    A tuple containing the lemma, its word category (along with its grammatical gender if the lemma in question is a noun) and the lemma's frequency.
-    A frequency vector, showing each lemma's frequency in the order in which the lemma appears in the corpus.
+    A tuple containing the lemma, its word category (along with its grammatical gender if the lemma in question is a noun) and the lemma's frequency
+    in IcePaHC, the MÍM corpus and the Gigaword Corpus.
+    A frequency vector, showing each lemma's frequency in IcePaHC, the MÍM corpus and the Gigaword Corpus, in the order in which the lemma appears in the corpus.
 
 """
 
@@ -31,16 +32,20 @@ from collections import Counter
 from collections import OrderedDict
 import os
 import string
+import glob
+import xml
+import csv
 
 basedir = "/Users/torunnarnardottir/Vinna/icepahc-v0.9/txt/"
 file_list = sorted(os.listdir(basedir))
-# file_list = [
-#    "1150.firstgrammar.sci-lin.txt",
-#    "1859.hugvekjur.rel-ser.txt",
-#    "1525.erasmus.nar-sag.txt",
-#    "1888.grimur.nar-fic.txt",
-# ]
 input_file_V2 = "/Users/torunnarnardottir/Vinna/icepahc-v0.9/infoTheoryTestV2.ice.treeIDandIDfixed.cod.ooo"
+
+mim_file_list = "{}fileList.txt".format("/Users/torunnarnardottir/Vinna/MIM/")
+rmh_file_list = [
+    os.path.abspath(filename)
+    for filename in glob.iglob("/Users/torunnarnardottir/Vinna/rmh/**")
+]
+
 output_file_total = (
     "/Users/torunnarnardottir/Vinna/icepahc-v0.9/icepahc_full_frequency.tsv"
 )
@@ -87,6 +92,50 @@ def clean_tagged_output(tagged_text, token_list, sent_id, delimiter):
                         token_list[sent_id].append((token, tag, lemma))
 
                         yield "{}{}{}".format(lemma, delimiter, tag)
+
+
+# XML namespace
+ns = {"tei": "http://www.tei-c.org/ns/1.0"}
+
+
+def mim_text_words(teifile):
+    """
+    Function to extract lemma occurences from tei xml file in the MÍM corpus
+    """
+    root = xml.etree.ElementTree.parse(teifile).getroot()
+    for sent in root.findall(".//tei:s", ns):
+        for aword in sent:
+            if aword.get("type") != "punctuation":
+                lemma = aword.get("lemma")
+                tag = aword.get("type")
+
+                # if noun, include gender with tag
+                if tag[0] == "n":
+                    tag = tag[:2]
+                else:
+                    tag = tag[0]
+
+                yield "{}{}{}".format(lemma, ", ", tag)
+
+
+def rmh_text_words(teifile):
+    """
+    Function to extract lemma occurences from tei xml file in the Gigaword Corpus
+    """
+    root = xml.etree.ElementTree.parse(teifile).getroot()
+    for sent in root.findall(".//tei:s", ns):
+        for aword in sent:
+            if aword.get("type") != "punctuation":
+                lemma = aword.get("lemma")
+                tag = aword.get("pos")
+
+                # if noun, include gender with tag
+                if tag[0] == "n":
+                    tag = tag[:2]
+                else:
+                    tag = tag[0]
+
+                yield "{}{}{}".format(lemma, ", ", tag)
 
 
 def add_freq_V2(output_file_V2):
@@ -184,10 +233,28 @@ def compile_full_freq(output_file_total):
     testID\tsentenceID\tSentence number in text\tSentence text\tTuple with each word's lemma, tag and frequency\tFrequency vector
     """
     c = Counter()
+    mim_c = Counter()
+    rmh_c = Counter()
     token_list = OrderedDict()
     text_list = dict()
 
     output_file = open(output_file_total, "w")
+
+    print("Compiling frequency information from the MÍM corpus...")
+    with open(mim_file_list) as f:
+        print("Compiling frequency information from the MÍM corpus...")
+        reader = csv.DictReader(f, delimiter="\t")
+        for text_count, item in enumerate(reader):
+            folder = item["Folder"]
+            fname = item["File Name"]
+            full_fname = "{}{}/{}".format(basedir, folder, fname)
+            mim_c.update(mim_text_words(full_fname))
+
+    print("Compiling frequency information from the Gigaword Corpus...")
+    # compile frequency information from the Gigaword Corpus
+    for file in sorted(rmh_file_list):
+        with open(file, "r"):
+            rmh_c.update(rmh_text_words(file))
 
     for file in file_list:
         print("Compiling frequency information from {}...".format(file))
@@ -269,9 +336,16 @@ def compile_full_freq(output_file_total):
                 vector = []
                 for word in token_list[sent_id]:
                     lemma_tuple = str(word[2]) + ", " + str(word[1])
-                    output_tuple = (lemma_tuple, c[lemma_tuple])
+                    output_tuple = (
+                        lemma_tuple,
+                        c[lemma_tuple],
+                        mim_c[lemma_tuple],
+                        rmh_c[lemma_tuple],
+                    )
                     tup.append(str(output_tuple))
-                    vector.append(str(c[lemma_tuple]))
+                    vector.append(
+                        str((c[lemma_tuple], mim_c[lemma_tuple], rmh_c[lemma_tuple]))
+                    )
                 output = [
                     text_id,
                     sent_id,
