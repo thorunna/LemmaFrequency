@@ -32,6 +32,7 @@ import os
 import glob
 import requests
 import json
+import string
 
 # Directory where The Gigaword Corpus is stored.
 basedir = "/Users/torunnarnardottir/Vinna/rmh"
@@ -133,7 +134,6 @@ def clean_tagged_output(tagged_text, delimiter):
             for sent in sentence:
                 for word in sent:
                     if word["word"] not in string.punctuation:
-                        token = word["word"]
                         tag = word["tag"]
                         lemma = word["lemma"]
                         # if noun, include gender with tag
