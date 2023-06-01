@@ -33,21 +33,22 @@ from collections import OrderedDict
 import os
 import string
 import glob
-import xml
+import xml.etree.ElementTree
 import csv
 
 basedir = "/Users/torunnarnardottir/Vinna/icepahc-v0.9/txt/"
 file_list = sorted(os.listdir(basedir))
 input_file_V2 = "/Users/torunnarnardottir/Vinna/icepahc-v0.9/infoTheoryTestV2.ice.treeIDandIDfixed.cod.ooo"
 
-mim_file_list = "{}fileList.txt".format("/Users/torunnarnardottir/Vinna/MIM/")
+mim_basedir = "/Users/torunnarnardottir/Vinna/MIM/"
+mim_file_list = "{}fileList.txt".format(mim_basedir)
 rmh_file_list = [
     os.path.abspath(filename)
-    for filename in glob.iglob("/Users/torunnarnardottir/Vinna/rmh/**")
+    for filename in glob.iglob("/Users/torunnarnardottir/Vinna/rmh/2018/**")
 ]
 
 output_file_total = (
-    "/Users/torunnarnardottir/Vinna/LemmaFrequency/output/icepahc_full_frequency.tsv"
+    "/Users/torunnarnardottir/Vinna/LemmaFrequency/output/icepahc_full_freq.tsv"
 )
 
 
@@ -240,14 +241,13 @@ def compile_full_freq(output_file_total):
 
     output_file = open(output_file_total, "w")
 
-    print("Compiling frequency information from the MÍM corpus...")
     with open(mim_file_list) as f:
         print("Compiling frequency information from the MÍM corpus...")
         reader = csv.DictReader(f, delimiter="\t")
         for text_count, item in enumerate(reader):
             folder = item["Folder"]
             fname = item["File Name"]
-            full_fname = "{}{}/{}".format(basedir, folder, fname)
+            full_fname = "{}{}/{}".format(mim_basedir, folder, fname)
             mim_c.update(mim_text_words(full_fname))
 
     print("Compiling frequency information from the Gigaword Corpus...")
@@ -256,8 +256,8 @@ def compile_full_freq(output_file_total):
         with open(file, "r"):
             rmh_c.update(rmh_text_words(file))
 
+    print("Compiling frequency information from IcePaHC...")
     for file in file_list:
-        print("Compiling frequency information from {}...".format(file))
         psd_path = (
             "/".join(basedir.split("/")[:-2])
             + "/psd/"
@@ -301,8 +301,6 @@ def compile_full_freq(output_file_total):
                 text_list[sent_id] = line.rstrip("\n")
                 c.update(clean_tagged_output(t, token_list, sent_id, ", "))
                 sent_count += 1
-
-        print("Writing to output file...")
 
         text_id = file
         info_file = (
