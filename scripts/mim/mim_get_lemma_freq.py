@@ -42,7 +42,7 @@ rmh_file_list = [
     for filename in glob.iglob("/Users/torunnarnardottir/Vinna/rmh/**")
 ]
 
-output_file = "/Users/torunnarnardottir/Vinna/MIM/allfreq_sents.tsv"
+output_file = "/Users/torunnarnardottir/Vinna/LemmaFrequency/output/mim_full_freq.tsv"
 
 
 # XML namespace

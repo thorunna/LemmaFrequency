@@ -47,7 +47,7 @@ rmh_file_list = [
 ]
 
 output_file_total = (
-    "/Users/torunnarnardottir/Vinna/icepahc-v0.9/icepahc_full_frequency.tsv"
+    "/Users/torunnarnardottir/Vinna/LemmaFrequency/output/icepahc_full_frequency.tsv"
 )
 
 

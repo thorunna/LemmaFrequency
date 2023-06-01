@@ -51,8 +51,10 @@ icepahc_file_list = [
 ]
 mim_file_list = "{}fileList.txt".format("/Users/torunnarnardottir/Vinna/MIM/")
 
-output_file = "/Users/torunnarnardottir/Vinna/rmh/rmh_full_freq.tsv"
-genre_output_dir = "/Users/torunnarnardottir/Vinna/rmh/rmh_genre_freq/"
+output_file = "/Users/torunnarnardottir/Vinna/LemmaFrequency/output/giga_full_freq.tsv"
+genre_output_dir = (
+    "/Users/torunnarnardottir/Vinna/LemmaFrequency/output/giga_genre_freq/"
+)
 
 # XML namespace
 ns = {"tei": "http://www.tei-c.org/ns/1.0"}

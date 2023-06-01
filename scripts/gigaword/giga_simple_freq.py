@@ -30,7 +30,9 @@ file_list = [
 ]
 
 # Path of output file
-output_file = "/Users/torunnarnardottir/Vinna/LemmaFrequency/output/rmh_simple_freq.tsv"
+output_file = (
+    "/Users/torunnarnardottir/Vinna/LemmaFrequency/output/giga_simple_freq.tsv"
+)
 
 # XML namespace
 ns = {"tei": "http://www.tei-c.org/ns/1.0"}
