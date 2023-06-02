@@ -20,7 +20,8 @@ separated by a tab:
     A frequency vector, showing each lemma's frequency in the Gigaword Corpus, IcePaHC and the MÍM corpus, in the order in which the lemma appears in the corpus.
 
 compile_genre_frequency() returns frequency information for each genre in the corpus. The information shown is the same as shown in the output of 
-compile_full_grequency(), but the lemmas' frequency is limited to the genre in question. The function returns output files for each genre in the corpus.
+compile_full_grequency(), excluding information from IcePaHC and MÍM, but the lemmas' frequency is limited to the genre in question. The function returns 
+output files for each genre in the corpus.
 
 """
 
