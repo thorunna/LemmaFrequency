@@ -1,1 +1,2 @@
+output/mim_full_freq.tsv filter=lfs diff=lfs merge=lfs -text
 *full_freq.tsv filter=lfs diff=lfs merge=lfs -text
