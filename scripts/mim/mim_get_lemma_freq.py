@@ -35,11 +35,11 @@ file_list = "{}fileList.txt".format(basedir)
 
 icepahc_file_list = [
     os.path.abspath(filename)
-    for filename in glob.iglob("/Users/torunnarnardottir/Vinna/icepahc-v0.9/**")
+    for filename in glob.iglob("/Users/torunnarnardottir/Vinna/icepahc-v0.9/txt/**")
 ]
 rmh_file_list = [
     os.path.abspath(filename)
-    for filename in glob.iglob("/Users/torunnarnardottir/Vinna/rmh/**")
+    for filename in glob.iglob("/Users/torunnarnardottir/Vinna/rmh/2018/**")
 ]
 
 output_file = "/Users/torunnarnardottir/Vinna/LemmaFrequency/output/mim_full_freq.tsv"
@@ -49,17 +49,19 @@ output_file = "/Users/torunnarnardottir/Vinna/LemmaFrequency/output/mim_full_fre
 ns = {"tei": "http://www.tei-c.org/ns/1.0"}
 
 
-def text_words(teifile, token_list, text_list):
+def text_words(teifile, genre, year, author_year, author_sex, token_list, text_list):
     """
     Function to extract lemma occurences from tei xml file in the MÍM corpus
     """
     root = xml.etree.ElementTree.parse(teifile).getroot()
     for sent in root.findall(".//tei:s", ns):
-        sent_no = sent.get("n")
-        token_list[sent_no] = []
-        text_list[sent_no] = []
+        sent_info = ":".join(
+            [teifile, sent.get("n"), genre, year, author_year, author_sex]
+        )
+        token_list[sent_info] = []
+        text_list[sent_info] = []
         for aword in sent:
-            text_list[sent_no].append(aword.text)
+            text_list[sent_info].append(aword.text)
             if aword.get("type") != "punctuation":
                 lemma = aword.get("lemma")
                 tag = aword.get("type")
@@ -70,7 +72,7 @@ def text_words(teifile, token_list, text_list):
                 else:
                     tag = tag[0]
 
-                token_list[sent_no].append((tag, lemma))
+                token_list[sent_info].append((tag, lemma))
 
                 yield "{}{}{}".format(lemma, ", ", tag)
 
@@ -166,19 +168,40 @@ def compile_full_frequency(output_file):
                 folder = item["Folder"]
                 fname = item["File Name"]
                 full_fname = "{}{}/{}".format(basedir, folder, fname)
-                # update counter with words from the current text
-                c.update((text_words(full_fname, token_list, text_list)))
-                sys.stdout.write("\rTexts processed: {}".format(text_count))
-
-                genre = folder
                 year = item["Date"]
                 author_year = ""
                 author_sex = ""
+                # update counter with words from the current text
+                c.update(
+                    (
+                        text_words(
+                            full_fname,
+                            folder,
+                            year,
+                            author_year,
+                            author_sex,
+                            token_list,
+                            text_list,
+                        )
+                    )
+                )
 
-            for sent_id in token_list:
+            for sent_info in token_list:
+                text_id = "/".join(sent_info.split(":")[0].split("/")[-2:])
+                sent_id = ".".join(
+                    [
+                        "/".join(text_id.split("/")[-2:]).split(".")[0],
+                        sent_info.split(":")[1],
+                    ]
+                )
+                sent_no = sent_info.split(":")[1]
+                genre = sent_info.split(":")[2]
+                year = sent_info.split(":")[3]
+                author_year = sent_info.split(":")[4]
+                author_sex = sent_info.split(":")[5]
                 tup = []
                 vector = []
-                for word in token_list[sent_id]:
+                for word in token_list[sent_info]:
                     lemma_tuple = str(word[1]) + ", " + str(word[0])
                     output_tuple = (
                         lemma_tuple,
@@ -197,14 +220,14 @@ def compile_full_frequency(output_file):
                         )
                     )
                 output = [
-                    fname,
-                    fname.split(".")[0] + "." + sent_id,
+                    text_id,
                     sent_id,
+                    sent_no,
                     genre,
                     year,
                     author_year,
                     author_sex,
-                    " ".join(text_list[sent_id]),
+                    " ".join(text_list[sent_info]),
                     " ".join(tup),
                     " ".join(vector),
                 ]
