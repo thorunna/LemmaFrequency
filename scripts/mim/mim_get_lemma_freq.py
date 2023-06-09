@@ -39,7 +39,9 @@ icepahc_file_list = [
 ]
 giga_file_list = [
     os.path.abspath(filename)
-    for filename in glob.iglob("/Users/torunnarnardottir/Vinna/rmh/2018/**")
+    for filename in glob.glob(
+        "/Users/torunnarnardottir/Vinna/rmh/**/*.xml", recursive=True
+    )
 ]
 
 output_file = "/Users/torunnarnardottir/Vinna/LemmaFrequency/output/mim_full_freq.tsv"

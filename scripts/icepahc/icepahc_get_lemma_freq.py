@@ -44,7 +44,9 @@ mim_basedir = "/Users/torunnarnardottir/Vinna/MIM/"
 mim_file_list = "{}fileList.txt".format(mim_basedir)
 giga_file_list = [
     os.path.abspath(filename)
-    for filename in glob.iglob("/Users/torunnarnardottir/Vinna/rmh/2018/**")
+    for filename in glob.glob(
+        "/Users/torunnarnardottir/Vinna/rmh/**/*.xml", recursive=True
+    )
 ]
 
 output_file_total = (

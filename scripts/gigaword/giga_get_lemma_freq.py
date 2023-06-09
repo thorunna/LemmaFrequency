@@ -39,11 +39,10 @@ import string
 basedir = "/Users/torunnarnardottir/Vinna/rmh"
 file_list = [
     os.path.abspath(filename)
-    for filename in glob.iglob(
-        "/Users/torunnarnardottir/Vinna/rmh/**",
+    for filename in glob.glob(
+        "/Users/torunnarnardottir/Vinna/rmh/**/*.xml",
         recursive=True,
     )
-    if filename.endswith(".xml")
 ]
 
 icepahc_file_list = [
