@@ -90,11 +90,13 @@ def giga_text_words(teifile):
                 lemma = aword.get("lemma")
                 tag = aword.get("pos")
 
-                # if noun, include gender with tag
-                if tag[0] == "n":
-                    tag = tag[:2]
-                else:
-                    tag = tag[0]
+                if lemma is not None and tag is not None:
+
+                    # if noun, include gender with tag
+                    if tag[0] == "n":
+                        tag = tag[:2]
+                    else:
+                        tag = tag[0]
 
                 yield "{}{}{}".format(lemma, ", ", tag)
 
