@@ -39,11 +39,10 @@ import string
 basedir = "/Users/torunnarnardottir/Vinna/rmh"
 file_list = [
     os.path.abspath(filename)
-    for filename in glob.iglob(
-        "/Users/torunnarnardottir/Vinna/rmh/**",
+    for filename in glob.glob(
+        "/Users/torunnarnardottir/Vinna/rmh/**/*.xml",
         recursive=True,
     )
-    if filename.endswith(".xml")
 ]
 
 icepahc_file_list = [
@@ -78,11 +77,13 @@ def text_words(teifile, token_list, text_list):
                 lemma = aword.get("lemma")
                 tag = aword.get("pos")
 
-                # if noun, include gender with tag
-                if tag[0] == "n":
-                    tag = tag[:2]
-                else:
-                    tag = tag[0]
+                if lemma is not None and tag is not None:
+
+                    # if noun, include gender with tag
+                    if tag[0] == "n":
+                        tag = tag[:2]
+                    else:
+                        tag = tag[0]
 
                 token_list[sent_no].append((tag, lemma))
 

@@ -19,14 +19,12 @@ import sys
 import operator
 
 # Directory where the Gigaword Corpus is stored.
-basedir = "/Users/torunnarnardottir/Vinna/rmh"
 file_list = [
     os.path.abspath(filename)
-    for filename in glob.iglob(
-        "/Users/torunnarnardottir/Vinna/rmh/**",
+    for filename in glob.glob(
+        "/Users/torunnarnardottir/Vinna/rmh/**/*.xml",
         recursive=True,
     )
-    if filename.endswith(".xml")
 ]
 
 # Path of output file
@@ -47,6 +45,9 @@ def text_words(teifile):
         lemma = aword.get("lemma")
         tag = aword.get("pos")
 
+        if lemma is None:
+            print(teifile, lemma, tag)
+
         # if noun, include gender with tag
         if tag[0] == "n":
             tag = tag[:2]
@@ -59,8 +60,8 @@ def text_words(teifile):
 # counter object that updates frequencies for lemmas file by file
 c = Counter()
 
+print("Processing texts...")
 for file in sorted(file_list):
-    print("Processing texts...")
     with open(file, "r"):
         # update counter with words from the current text
         c.update((text_words(file)))

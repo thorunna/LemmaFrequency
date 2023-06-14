@@ -37,9 +37,11 @@ icepahc_file_list = [
     os.path.abspath(filename)
     for filename in glob.iglob("/Users/torunnarnardottir/Vinna/icepahc-v0.9/txt/**")
 ]
-rmh_file_list = [
+giga_file_list = [
     os.path.abspath(filename)
-    for filename in glob.iglob("/Users/torunnarnardottir/Vinna/rmh/2018/**")
+    for filename in glob.glob(
+        "/Users/torunnarnardottir/Vinna/rmh/**/*.xml", recursive=True
+    )
 ]
 
 output_file = "/Users/torunnarnardottir/Vinna/LemmaFrequency/output/mim_full_freq.tsv"
@@ -77,7 +79,7 @@ def text_words(teifile, genre, year, author_year, author_sex, token_list, text_l
                 yield "{}{}{}".format(lemma, ", ", tag)
 
 
-def rmh_text_words(teifile):
+def giga_text_words(teifile):
     """
     Function to extract lemma occurences from tei xml file in the Gigaword Corpus
     """
@@ -88,11 +90,13 @@ def rmh_text_words(teifile):
                 lemma = aword.get("lemma")
                 tag = aword.get("pos")
 
-                # if noun, include gender with tag
-                if tag[0] == "n":
-                    tag = tag[:2]
-                else:
-                    tag = tag[0]
+                if lemma is not None and tag is not None:
+
+                    # if noun, include gender with tag
+                    if tag[0] == "n":
+                        tag = tag[:2]
+                    else:
+                        tag = tag[0]
 
                 yield "{}{}{}".format(lemma, ", ", tag)
 
@@ -144,7 +148,7 @@ def compile_full_frequency(output_file):
     # counter object that updates frequencies for lemmas file by file
     c = Counter()
     icepahc_c = Counter()
-    rmh_c = Counter()
+    giga_c = Counter()
     token_list = dict()
     text_list = dict()
 
@@ -158,9 +162,9 @@ def compile_full_frequency(output_file):
                     icepahc_c.update(clean_tagged_output(t, ", "))
         print("Compiling frequency information from the Gigaword Corpus...")
         # compile frequency information from the Gigaword Corpus
-        for file in sorted(rmh_file_list):
+        for file in sorted(giga_file_list):
             with open(file, "r"):
-                rmh_c.update(rmh_text_words(file))
+                giga_c.update(giga_text_words(file))
         with open(file_list) as f:
             print("Compiling frequency information from the MÍM corpus...")
             reader = csv.DictReader(f, delimiter="\t")
@@ -207,7 +211,7 @@ def compile_full_frequency(output_file):
                         lemma_tuple,
                         c[lemma_tuple],
                         icepahc_c[lemma_tuple],
-                        rmh_c[lemma_tuple],
+                        giga_c[lemma_tuple],
                     )
                     tup.append(str(output_tuple))
                     vector.append(
@@ -215,7 +219,7 @@ def compile_full_frequency(output_file):
                             (
                                 c[lemma_tuple],
                                 icepahc_c[lemma_tuple],
-                                rmh_c[lemma_tuple],
+                                giga_c[lemma_tuple],
                             )
                         )
                     )
