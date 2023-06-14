@@ -133,8 +133,6 @@ def giga_text_words(teifile):
                 tag = aword.get("pos")
 
                 if lemma is not None and tag is not None:
-                    #    print(teifile, lemma)
-                    # else:
 
                     # if noun, include gender with tag
                     if tag[0] == "n":
