@@ -45,7 +45,7 @@ def text_words(teifile):
         lemma = aword.get("lemma")
         tag = aword.get("pos")
 
-        if lemma is not None and tag is not None:
+        if lemma != None and tag != None:
 
             # if noun, include gender with tag
             if tag[0] == "n":

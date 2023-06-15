@@ -36,12 +36,11 @@ import json
 import string
 
 # Directory where The Gigaword Corpus is stored.
-basedir = "/Users/torunnarnardottir/Vinna/rmh"
+basedir = "/Users/torunnarnardottir/Vinna/rmh/"
 file_list = [
     os.path.abspath(filename)
     for filename in glob.glob(
-        "/Users/torunnarnardottir/Vinna/rmh/**/*.xml",
-        recursive=True,
+        "/Users/torunnarnardottir/Vinna/rmh/**/*.xml", recursive=True
     )
 ]
 
