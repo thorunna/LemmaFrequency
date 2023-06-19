@@ -45,7 +45,7 @@ def text_words(teifile):
         lemma = aword.get("lemma")
         tag = aword.get("pos")
 
-        if lemma != None and tag != None:
+        if lemma is not None and tag is not None:
 
             # if noun, include gender with tag
             if tag[0] == "n":
@@ -53,7 +53,7 @@ def text_words(teifile):
             else:
                 tag = tag[0]
 
-        yield "{}\t{}".format(lemma, tag)
+            yield "{}\t{}".format(lemma, tag)
 
 
 # counter object that updates frequencies for lemmas file by file
