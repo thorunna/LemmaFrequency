@@ -48,7 +48,8 @@ icepahc_file_list = [
     os.path.abspath(filename)
     for filename in glob.iglob("/Users/torunnarnardottir/Vinna/icepahc-v0.9/**")
 ]
-mim_file_list = "{}fileList.txt".format("/Users/torunnarnardottir/Vinna/MIM/")
+mim_base_dir = "/Users/torunnarnardottir/Vinna/MIM/"
+mim_file_list = "{}fileList.txt".format(basedir)
 
 output_file = "/Users/torunnarnardottir/Vinna/LemmaFrequency/output/giga_full_freq.tsv"
 genre_output_dir = (
@@ -84,9 +85,9 @@ def text_words(teifile, token_list, text_list):
                     else:
                         tag = tag[0]
 
-                token_list[sent_no].append((tag, lemma))
+                    token_list[sent_no].append((tag, lemma))
 
-                yield "{}{}{}".format(lemma, ", ", tag)
+                    yield "{}{}{}".format(lemma, ", ", tag)
 
 
 def mim_text_words(teifile):
@@ -175,12 +176,12 @@ def compile_full_frequency(output_file):
         for text_count, item in enumerate(reader):
             folder = item["Folder"]
             fname = item["File Name"]
-            full_fname = "{}{}/{}".format(basedir, folder, fname)
+            full_fname = "{}{}/{}".format(mim_basedir, folder, fname)
             mim_c.update(mim_text_words(full_fname))
 
     for file in sorted(file_list):
         print("Compiling frequency information from {}...".format(file))
-        genre = file.split("/")[6].split("-")[1]
+        genre = file.split(basedir)[1].split("/")[0].split("-")[1]
         with open(file, "r"):
             text_id = file.split("/")[-1]
             c.update((text_words(file, token_list, text_list)))
@@ -188,7 +189,7 @@ def compile_full_frequency(output_file):
             year = (
                 root.find(".//tei:sourceDesc", ns)
                 .find(".//tei:date", ns)
-                .attrib["when"][:4]
+                .attrib.get("when")[:4]
             )
             author_year = ""
             author_sex = ""
@@ -236,7 +237,7 @@ def get_genre_frequency(genre, output_dir):
     token_list = dict()
     text_list = dict()
 
-    output_file = output_dir + "rmh_" + genre + "_freq.tsv"
+    output_file = output_dir + "giga_" + genre + "_freq.tsv"
     out = open(output_file, "w")
 
     genre_file_list = [file for file in file_list if genre in file]
@@ -245,7 +246,7 @@ def get_genre_frequency(genre, output_dir):
 
     for file in sorted(genre_file_list):
         print("Compiling frequency information from {}...".format(file))
-        genre = file.split("/")[6].split("-")[1]
+        genre = file.split(basedir)[1].split("/")[0].split("-")[1]
         with open(file, "r"):
             text_id = file.split("/")[-1]
             c.update((text_words(file, token_list, text_list)))
@@ -253,7 +254,7 @@ def get_genre_frequency(genre, output_dir):
             year = (
                 root.find(".//tei:sourceDesc", ns)
                 .find(".//tei:date", ns)
-                .attrib["when"][:4]
+                .attrib.get("when")[:4]
             )
             author_year = ""
             author_sex = ""
@@ -291,7 +292,7 @@ def compile_genre_frequency(output_dir):
     genres = set()
 
     for file in sorted(file_list):
-        genre = file.split("/")[6].split("-")[1]
+        genre = file.split(basedir)[1].split("/")[0].split("-")[1]
         genres.add(genre)
 
     for genre in genres:
