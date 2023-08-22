@@ -15,6 +15,7 @@ import xml.etree.ElementTree
 import csv
 import sys
 import operator
+import re
 
 # Directory where MIM is stored. This directory contains
 # a fileList.txt file that is provided with the corpus and
@@ -38,13 +39,15 @@ def text_words(teifile):
         lemma = aword.get("lemma")
         tag = aword.get("type")
 
-        # if noun, include gender with tag
-        if tag[0] == "n":
-            tag = tag[:2]
-        else:
-            tag = tag[0]
+        # handling for a unicode character in the MÍM files
+        if lemma != " ":
+            # if noun, include gender with tag
+            if tag[0] == "n":
+                tag = tag[:2]
+            else:
+                tag = tag[0]
 
-        yield "{}\t{}".format(lemma, tag)
+            yield "{}\t{}".format(lemma, tag)
 
 
 # counter object that updates frequencies for lemmas file by file
